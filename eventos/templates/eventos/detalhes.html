@@ -1,0 +1,36 @@
+{% extends "eventos/base.html" %}
+{% block title %}{{ evento.titulo }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div><h1 class="h3">{{ evento.titulo }}</h1><span class="badge text-bg-secondary">{{ evento.get_status_display }}</span></div>
+    <div class="d-flex gap-2"><a class="btn btn-outline-primary" href="{% url 'editar_evento' evento.pk %}">Editar</a><a class="btn btn-outline-danger" href="{% url 'excluir_evento' evento.pk %}">Excluir</a></div>
+</div>
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card mb-3"><div class="card-body">
+            <h2 class="h5">Dados do evento</h2>
+            <p>{{ evento.descricao|default:"Sem descrição." }}</p>
+            <p class="mb-1"><strong>Início:</strong> {{ evento.data_inicio|date:"d/m/Y H:i" }}</p>
+            <p><strong>Fim:</strong> {% if evento.data_fim %}{{ evento.data_fim|date:"d/m/Y H:i" }}{% else %}Não informado{% endif %}</p>
+            <h2 class="h5 mt-4">Local</h2>
+            <p class="mb-1">{{ evento.endereco_completo }}</p><small class="text-muted">CEP {{ evento.cep }}</small>
+        </div></div>
+        {% if informacoes.alertas %}<div class="alert alert-warning"><strong>Alertas</strong><ul class="mb-0 mt-2">{% for alerta in informacoes.alertas %}<li>{{ alerta }}</li>{% endfor %}</ul></div>{% endif %}
+        {% if informacoes.erros %}<div class="alert alert-secondary"><strong>Integrações temporariamente indisponíveis:</strong><ul class="mb-0 mt-2">{% for erro in informacoes.erros %}<li>{{ erro }}</li>{% endfor %}</ul></div>{% endif %}
+    </div>
+    <div class="col-lg-5">
+        <div class="card mb-3"><div class="card-body"><h2 class="h5">Previsão do tempo</h2>
+            {% if informacoes.clima.disponivel %}
+                <p class="fw-semibold">{{ informacoes.clima.descricao }}</p>
+                <p class="mb-1">Máxima: {{ informacoes.clima.temperatura_maxima }} °C</p>
+                <p class="mb-1">Mínima: {{ informacoes.clima.temperatura_minima }} °C</p>
+                <p class="mb-1">Chuva: {{ informacoes.clima.probabilidade_chuva }}%</p>
+                <p class="mb-0">Vento máx.: {{ informacoes.clima.vento_maximo }} km/h</p>
+            {% else %}<p class="text-muted mb-0">{{ informacoes.clima.motivo|default:"Indisponível." }}</p>{% endif %}
+        </div></div>
+        <div class="card"><div class="card-body"><h2 class="h5">Feriado</h2>
+            {% if informacoes.feriado.feriado %}<p class="mb-0"><strong>{{ informacoes.feriado.nome }}</strong></p>{% else %}<p class="text-muted mb-0">Nenhum feriado identificado para a data.</p>{% endif %}
+        </div></div>
+    </div>
+</div>
+{% endblock %}
